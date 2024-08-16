@@ -1,5 +1,5 @@
 # Installation:
-The test script requires a valid installation of Python version 3.9 or greater. The test script also requires the following additional modules: pyglet version>=1.5.26 and <2.0.0, numpy, pydicom, scipy, and networkx. No additional installation is required. The requirements.txt file can be used with pip to install these modules.
+The test script requires a valid installation of Python version 3.9 or greater. The test script also requires the following additional modules: pyglet, numpy, pydicom, scipy, and networkx. No additional installation is required. The requirements.txt file can be used with pip to install these modules.
 
 # Usage:
 The program can be run using the command `py testbench.py [PATH] [PROTOTYPE] [MODE] -i [INCLUDE] -e [EXCLUDE] -o [OUTPUT] -r`
@@ -9,7 +9,7 @@ The program can be run using the command `py testbench.py [PATH] [PROTOTYPE] [MO
 - **PATH:** file location which contains the function to be tested. Can be a relative or absolute path. Must include the name of the file.   
   *Example: for file "test.py" located in directory "temp" within the test script's directory, PATH would be "temp/test.py"*
 
-- **PROTOTYPE:** name and arguments of the test function. Arguments should be contained within parentheses and separated py commas.  
+- **PROTOTYPE:** name and arguments of the test function. Arguments should be contained within parentheses and separated by commas.  
   *Example: for function "testFn" with arguments "filename", "point", and "vertices", PROTOTYPE would be "testFn(filename,point,vertices)"*
   #### Available arguments:
   ##### Mesh mode:
@@ -44,3 +44,29 @@ The program can be run using the command `py testbench.py [PATH] [PROTOTYPE] [MO
 In mesh mode, the test script expects the function under test to return a Yx3 numpy array of floats containing the x, y, and z coordinates of vertices which are part of the segmented aneurysm. Y is a positive integer less than the total number of verticies in the mesh. Each row of the returned array should correspond to a vertex in the input mesh.
 
 In voxel mode, the test script expects the function under test to return a 3D numpy array of ints with the same dimensions as the input voxel array. The returned voxel array should be a mask where elements with value "1" indicate voxels which are part of the segmented aneurysm, and elements with value "0" indicate voxels which are not part of the segmented aneurysm. Only voxels on the surface of the aneurysm (ie, voxels with at least one exposed face) should be included in the result.
+
+# Output
+As its output, the test script produces a .csv file which contains the calculated Jaccard Index and Dice-Sorensen Coefficient for each test file which was executed. Each row of the output file corresponds to a test file, and the DSC and JI values are stored in two columns. By default, the output file will be stored as "out_[YEAR]-[MONTH]-[DAY]--[HOUR]-[MINUTE]-[SECOND].csv" in the "output" folder in the test script's directory, but the name and location of the output file can be modified by using the optional "-o" or "--output" arguments and specifying a new filename.
+
+If "-r" is specified, a window will open when the test script finishes executing the last test file. The window will show a rendering of the first test file used in the execution, with the true segmentation represented in blue, the calculated segmentation represented in red, and areas of overlap between the two segmentations represented in green. A blue line indicates the boundary of the true segmentation, and a red line indicates the boundary of the calculated segmentation. Note that a boundary line for the calculated segmentation will only be displayed if there exists a single non-self-intersecting path which entirely divides elements which belong to the segmentation and elements which do not belong to the segmentation. If such a path does not exist, no boundary will be rendered for the calculated segmentation. The controls in the bottom right corner of the window can be used to navigate; pressing the left arrow renders the next test file, and pressing the right arrow renders the previous test file. The name of a test file can be entered in the text field below the arrows to jump to a specific test file. The rendering can be rotated by holding the left mouse button and dragging the mouse in the desired direction of rotation, translated by holding the right mouse button and dragging the mouse in the desired direction, and zoomed by scrolling the mouse wheel. To exit rendering, click the X icon in the top right corner.
+
+# Examples
+Two example functions under test are provided in the "examples" folder to demonstrate usage of the test script. 
+
+#### example_null.py
+The first example, titled "example_null.py", contains two dummy functions which return an empty segmentation in mesh and voxel mode, respectively. This example can be used to view the true segmentations without any overlay of a calculated segmentation. To execute this example:
+1. Navigate to the folder which contains the test script (by default named "AnSegTest")
+2. Execute the appropriate command to launch the test script in the desired mode:
+   - for voxel mode: "py testbench.py examples/example_null.py nullVoxel(filename) voxel -r"
+   - for mesh mode: "py testbench.py examples/example_null.py nullMesh(filename) mesh -r"
+3. The test script will execute, and when it completes, a window will open showing renderings of the segmentations
+
+#### example_random.py
+The second example, titled "example_random.py", contains two example functions which generate a randomized segmentation based on the true segmentation in mesh and voxel mode, respectively. This example is intended to illustrate the rendering functionality of the test script. To execute this example:
+1. Navigate to the folder which contains the test script (by default named "AnSegTest")
+2. Execute the appropriate command to launch the test script in the desired mode:
+   - for voxel mode: "py testbench.py examples/example_random.py randomVoxel(filename,point,voxel_array) voxel -r"
+   - for mesh mode: "py testbench.py examples/example_random.py randomMesh(filename,point,vertices,faces) mesh -r"
+3. The test script will execute, and when it completes, a window will open showing renderings comparing the calculated and true segmentations
+4. Example output data will be available in the "output" folder
+
