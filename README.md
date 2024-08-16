@@ -57,7 +57,7 @@ Two example functions under test are provided in the "examples" folder to demons
 The first example, titled "example_null.py", contains two dummy functions which return an empty segmentation in mesh and voxel mode, respectively. This example can be used to view the true segmentations without any overlay of a calculated segmentation. To execute this example:
 1. Navigate to the folder which contains the test script (by default named "AnSegTest")
 2. Execute the appropriate command to launch the test script in the desired mode:
-   - for voxel mode: "py testbench.py examples/example_null.py nullVoxel(filename) voxel -r"
+   - for voxel mode: "py testbench.py examples/example_null.py nullVoxel(voxel_array) voxel -r"
    - for mesh mode: "py testbench.py examples/example_null.py nullMesh(filename) mesh -r"
 3. The test script will execute, and when it completes, a window will open showing renderings of the segmentations
 
