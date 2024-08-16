@@ -9,8 +9,8 @@ import numpy as np
 
 #Example function for use in voxel mode
 #Always returns a numpy array of zeros with shape matching the input array
-#To run, use command "py testbench.py examples/example_null.py nullVoxel(filename) voxel -r"
-def nullVoxel(filename):
+#To run, use command "py testbench.py examples/example_null.py nullVoxel(voxel_array) voxel -r"
+def nullVoxel(voxel_array):
     return np.zeros(voxel_array.shape)
     
 
