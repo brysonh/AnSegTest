@@ -62,6 +62,7 @@ C_SURFACE_OVERLAP_COLOR = (145, 250, 169) #Light green
 C_VOXEL_SIZE = (0.469,0.469,0.469)
 C_SURF_MAX_RECUR = 500
 C_MIN_LOOP_SIZE = 10
+C_MAX_PATH_ATTEMPTS = 100000
 
 
 #Data structure for storing 3D coordinates
@@ -1076,7 +1077,10 @@ def voxelArrayToPath(seg,array):
     branches = []
     
     #Iterate through list of vertices
+    count = 0
     while(len(ordered)<length+1):
+        count += 1
+        if count>C_MAX_PATH_ATTEMPTS: return []
     
         #Check if all vertices have been used
         if len(ordered)==length:
