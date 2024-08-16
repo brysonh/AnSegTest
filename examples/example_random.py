@@ -74,37 +74,6 @@ def randomVoxel(filename,point,voxel_array):
                         newSeg[x+i-1,y+j-1,z+k-1] = 2
     return newSeg
     
-    # newSeg = np.zeros(voxel_array.shape)
-    # newSeg[tuple(point)] = 2
-    # #k = np.array([[[0,0,0],[0,1,0],[0,0,0]], [[0,1,0],[1,1,1],[0,1,0]], [[0,0,0],[0,1,0],[0,0,0]]])
-    # k = np.ones((3,3,3))
-    # surface = ndimage.convolve(voxel_array, k, mode='constant', cval=0)
-    # surface[surface==27] = 0
-    # surface[surface>0] = 1
-    # (px,py,pz) = (point[0],point[1],point[2])
-    
-    # #Step through array, adding voxels which are connected to starting point
-    # while 2 in newSeg:
-        # active = np.copy(newSeg)
-        # active[active!=2] = 0
-        # k = np.array([[[0,0,0],[0,1,0],[0,0,0]], [[0,1,0],[1,1,1],[0,1,0]], [[0,0,0],[0,1,0],[0,0,0]]])
-        # neighbors = ndimage.convolve(active, k, mode='constant', cval=0)
-        # neighbors[neighbors>0] = 1
-        # newPoints = neighbors.astype(bool) & surface.astype(bool) & (~(newSeg.astype(bool)))
-        # newSeg[newSeg==2] = 1
-        # for (x,y,z) in np.argwhere(newPoints):
-            # if (A*x+B*y-z+C)*(A*px+B*py-pz+C)>=0: newSeg[(x,y,z)] = 2
-    
-    #np.set_printoptions(threshold=sys.maxsize)
-    #print(newSeg)
-    # newSeg[newSeg>0] = 1
-    # k = np.array([[[0,0,0],[0,1,0],[0,0,0]], [[0,1,0],[1,1,1],[0,1,0]], [[0,0,0],[0,1,0],[0,0,0]]])
-    # conv = ndimage.convolve(newSeg, k, mode='constant', cval=0)
-    # newSeg[conv==7] = 0
-    #print(newSeg)
-     
-    return newSeg
-    
 
 #Example function for use in mesh mode
 #
