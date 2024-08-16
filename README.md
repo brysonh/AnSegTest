@@ -1,5 +1,5 @@
 # Installation:
-The test script requires a valid installation of Python version 3.9 or greater. The test script also requires the following additional modules: pyglet, numpy, pydicom, scipy, and networkx. No additional installation is required. The requirements.txt file can be used with pip to install these modules.
+The test script requires a valid installation of Python version 3.9 or greater. The test script also requires the following additional modules: setuptools, pyglet, numpy, pydicom, scipy, and networkx. No additional installation is required. The requirements.txt file can be used with pip to install these modules.
 
 # Usage:
 The program can be run using the command `py testbench.py [PATH] [PROTOTYPE] [MODE] -i [INCLUDE] -e [EXCLUDE] -o [OUTPUT] -r`
