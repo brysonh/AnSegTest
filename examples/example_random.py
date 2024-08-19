@@ -53,14 +53,15 @@ def randomVoxel(filename,point,voxel_array):
     offset = (np.random.rand()*2-1)*obj.anDim.x
     skewA = (1+.1*(np.random.rand()*2-1))
     skewB = (1+.1*(np.random.rand()*2-1))
-    (A,B,C) = (A*skewA, B*skewB, C+offset)
+    #(A,B,C) = (A*skewA, B*skewB, C+offset)
     
     #Select voxels which are on the same side of the new plane as the starting voxel
     newSeg = np.zeros(voxel_array.shape)
     newSeg[tuple(point)] = 2
     k = np.array([[[0,0,0],[0,1,0],[0,0,0]], [[0,1,0],[1,1,1],[0,1,0]], [[0,0,0],[0,1,0],[0,0,0]]])
-    surface = ndimage.convolve(voxel_array, k, mode='constant', cval=0)
-    surface[surface==7] = 0
+    conv = ndimage.convolve(voxel_array, k, mode='constant', cval=0)
+    surface = np.copy(voxel_array)
+    surface[conv==7] = 0
     surface[surface>0] = 1
     (px,py,pz) = (point[0],point[1],point[2])
     ref = np.array([[[0,1,0],[1,1,1],[0,1,0]], [[1,1,1],[1,0,1],[1,1,1]], [[0,1,0],[1,1,1],[0,1,0]]])
@@ -69,7 +70,7 @@ def randomVoxel(filename,point,voxel_array):
         for (x,y,z) in np.argwhere(newSeg == 2):
             newSeg[x,y,z] = 1
             for (i,j,k) in np.ndindex((3,3,3)):
-                if (x+i-1)<dx and (y+j-1)<dy and (z+k-1)<dz and surface[x+i-1,y+j-1,z+k-1]>0 and voxel_array[x+i-1,y+j-1,z+k-1]>0 and newSeg[x+i-1,y+j-1,z+k-1]==0 and ref[i,j,k]>0:
+                if 0<=(x+i-1)<dx and 0<=(y+j-1)<dy and 0<=(z+k-1)<dz and surface[x+i-1,y+j-1,z+k-1]>0 and voxel_array[x+i-1,y+j-1,z+k-1]>0 and newSeg[x+i-1,y+j-1,z+k-1]==0 and ref[i,j,k]>0:
                     if (A*(x+i-1)+B*(y+j-1)-(z+k-1)+C)*(A*(px+i-1)+B*(py+j-1)-(pz+k-1)+C)>=0:
                         newSeg[x+i-1,y+j-1,z+k-1] = 2
     return newSeg
