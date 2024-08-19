@@ -1,5 +1,5 @@
-pyglet>=1.5.26,<2.0.0
-numpy
-pydicom
-scipy
-networkx
+networkx==3.2.1
+numpy==2.0.0
+pydicom==2.4.4
+pyglet==1.5.29
+scipy==1.13.1
