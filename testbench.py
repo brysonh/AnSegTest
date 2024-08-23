@@ -989,7 +989,7 @@ def sanitizeArguments(arguments,mode):
 
 
 #Create an aneurysm boundary from a voxel segmentation
-def voxelArrayToPath(seg,array):
+def voxelArrayToPath(seg,array,obj):
     #Pad inputs and create local copies to modify
     seg = addWhitespace(seg)
     array = addWhitespace(array)
@@ -1034,10 +1034,10 @@ def voxelArrayToPath(seg,array):
     internal_vert[:,:,1:] = np.logical_or(internal_vert[:,:,1:],internal_vert[:,:,:-1]) 
  
     #Identify vertices which are included in a face in the segmented image, original image, and an empty voxel
-    boundary_vert = np.logical_and(np.logical_and(seg_vert,array_vert),internal_vert)
+    boundary_vertices = np.logical_and(np.logical_and(seg_vert,array_vert),internal_vert)
     
     #Convert to list of coordinates
-    boundary_vertices = list(np.argwhere(boundary_vert))
+    boundary_vertices = list(np.argwhere(boundary_vertices))
     boundary_vertices = [tuple(v) for v in boundary_vertices]
     
     #Remove extraneous vertices caused by exposed corners
@@ -1068,70 +1068,18 @@ def voxelArrayToPath(seg,array):
                 boundary_vertices_keep.append(v)
                 
     boundary_vertices = boundary_vertices_keep
+    boundary = [(p[0]*C_VOXEL_SIZE[0],p[1]*C_VOXEL_SIZE[1],p[2]*C_VOXEL_SIZE[2]) for p in boundary_vertices]
     
-    #Reorder vertices into continuous path
-    length = len(boundary_vertices)
-    if length==0: return [] #No points selected
-    ordered = [boundary_vertices[0]]
-    boundary_vertices.remove(ordered[0])
-    branches = []
-    
-    #Iterate through list of vertices
-    count = 0
-    while(len(ordered)<length+1):
-        count += 1
-        if count>C_MAX_PATH_ATTEMPTS: return []
-    
-        #Check if all vertices have been used
-        if len(ordered)==length:
-        
-            #Check if first and last element line up
-            if math.dist(ordered[0],ordered[-1])<1.1:            
-                break #List is done
-            else: #Ends didn't meet, reset to last branch                     
-                if branches == []:
-                    return [] 
-                boundary_vertices.extend(ordered[branches[-1][0]:])
-                ordered = ordered[:branches[-1][0]]
-                ordered.append(branches[-1][1][0])
-                branches[-1][1].remove(branches[-1][1][0])
-                if len(branches[-1][1])==0:
-                    branches = branches[:-1]
-                boundary_vertices.remove(ordered[-1])
-    
-        #Continue adding vertices
-        else:
-        
-            #Find unused vertices adjacent to end of list
-            possible = []
-            for v in boundary_vertices:
-                if math.dist(v,ordered[-1])<1.1: #To account for floating point imprecision:
-                    possible.append(v)
-                    
-            #Choose one possible vertex and add the other options as a new branch
-            if len(possible)>1:
-                ordered.append(possible[0])
-                boundary_vertices.remove(ordered[-1])
-                branches.append((len(ordered)-1,possible[1:]))
-            
-            #Add the single possible vertex to the list
-            elif len(possible)==1:
-                ordered.append(possible[0])
-                boundary_vertices.remove(ordered[-1])
-                
-            #Dead end, reset to last branch
-            else:
-                if branches == []:
-                    return []
-                boundary_vertices.extend(ordered[branches[-1][0]:])
-                ordered = ordered[:branches[-1][0]]
-                ordered.append(branches[-1][1][0])
-                branches[-1][1].remove(branches[-1][1][0])
-                if len(branches[-1][1])==0:
-                    branches = branches[:-1]
-                boundary_vertices.remove(ordered[-1])
-     
-    return (np.stack([np.array(v) for v in ordered],axis=0)*C_VOXEL_SIZE).flatten()
+    graph = obj.graph.copy()
+    graph.remove_nodes_from(graph.nodes()-boundary)
+    for x,y in graph.edges:
+        if (x[0]!=y[0] and x[1]!=y[1]) or (x[0]!=y[0] and x[2]!=y[2]) or (x[1]!=y[1] and x[2]!=y[2]): graph.remove_edge(x,y)
+    cycles = sorted(nx.simple_cycles(graph.to_directed()),key=len)
+
+    if len(cycles)==0 or len(cycles[-1])!=len(boundary):
+        return []
+   
+    return list(sum(cycles[-1], ()))
 
 
 #Create a boundary from a list of segmented vertices
@@ -1403,7 +1351,7 @@ def main():
         #Process output
         if mode=='voxel':
             testArray = testResult
-            testPath = voxelArrayToPath(testArray,obj.voxelArray)
+            testPath = voxelArrayToPath(testArray,obj.voxelArray,obj)
             testResult = (testArray,testPath)
         
         elif mode=='mesh':
